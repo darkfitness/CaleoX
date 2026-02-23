@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caleo Academy | Premium Learning</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    
+    <style>
+        :root {
+            --brand-orange: #ff5c35;
+            --brand-orange-soft: #fff6f4;
+            --bg-white: #ffffff;
+            --grid-line: rgba(0, 0, 0, 0.04);
+            --text-dark: #121212;
+            --text-muted: #667085;
+            --glass: rgba(255, 255, 255, 0.85);
+            --border-light: #f2f4f7;
+            --premium-shadow: 0 20px 50px rgba(0,0,0,0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background: var(--bg-white); color: var(--text-dark); overflow-x: hidden; scroll-behavior: smooth; }
+
+        /* --- GRID SYSTEM --- */
+        .page-grid {
+            position: fixed; top: 0; left: 50%; transform: translateX(-50%);
+            width: 100%; max-width: 1440px; height: 100vh;
+            display: grid; grid-template-columns: repeat(12, 1fr);
+            z-index: -2; pointer-events: none;
+        }
+        .grid-col { border-right: 1px solid var(--grid-line); height: 100%; }
+
+        /* --- GLOW --- */
+        .glow-system {
+            position: absolute; top: 0; left: 0; width: 100%; height: 600px; z-index: -1; overflow: hidden;
+        }
+        .glow-block {
+            position: absolute; background: var(--brand-orange); filter: blur(80px); opacity: 0.12; border-radius: 50%;
+        }
+        .g1 { width: 500px; height: 300px; top: -100px; right: -50px; }
+
+        /* --- PREMIUM ANIMATIONS --- */
+        @keyframes shimmer {
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+
+        .shimmer-text {
+            background: linear-gradient(90deg, #ff5c35, #ffb09c, #ff5c35);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shimmer 4s linear infinite;
+        }
+
+        /* --- NAVIGATION --- */
+        nav {
+            position: fixed; top: 0; width: 100%; height: 80px;
+            background: var(--glass); backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--grid-line); z-index: 1000;
+            display: flex; justify-content: center;
+        }
+        .nav-container { width: 100%; max-width: 1200px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; }
+        .logo { font-weight: 800; font-size: 24px; letter-spacing: -1px; cursor: pointer; }
+        
+        .nav-actions { display: flex; gap: 12px; align-items: center; }
+        .icon-btn { 
+            background: #fff; border: 1px solid var(--border-light); width: 44px; height: 44px; 
+            border-radius: 12px; cursor: pointer; display: flex; align-items: center; 
+            justify-content: center; transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        .icon-btn:hover { border-color: var(--brand-orange); transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+        .icon-btn svg { width: 20px; height: 20px; stroke: #333; fill: none; stroke-width: 2; }
+
+        /* --- PREMIUM MINI SEARCH --- */
+        #search-bar-container {
+            position: fixed; top: -100px; left: 50%; transform: translateX(-50%);
+            width: 90%; max-width: 500px; background: #fff; z-index: 3000;
+            padding: 8px; border-radius: 16px; box-shadow: var(--premium-shadow);
+            display: flex; align-items: center; border: 1px solid var(--border-light);
+        }
+        .search-mini-input {
+            flex: 1; padding: 12px 16px; border: none; outline: none; font-size: 16px; font-weight: 500;
+        }
+        .search-mini-btn {
+            background: var(--brand-orange); color: #fff; border: none; padding: 10px 20px;
+            border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 13px;
+        }
+
+        /* --- PREMIUM SIDE MENU --- */
+        #menu-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.05); backdrop-filter: blur(4px);
+            z-index: 2000; display: none; opacity: 0;
+        }
+        #side-menu {
+            position: fixed; top: 15px; right: -400px; width: 380px; height: calc(100vh - 30px);
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(25px);
+            z-index: 2001; border-radius: 24px; box-shadow: -20px 0 60px rgba(0,0,0,0.08);
+            padding: 50px; display: flex; flex-direction: column; border: 1px solid rgba(255,255,255,0.5);
+             will-change: transform, right; /* Browser ko optimize karne ke liye */
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transform: translateZ(0);
+        }
+        .menu-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 60px; }
+        .menu-close-btn { 
+            width: 40px; height: 40px; border-radius: 50%; border: 1px solid #eee; 
+            display: flex; align-items: center; justify-content: center; cursor: pointer; 
+        }
+        .menu-links { display: flex; flex-direction: column; gap: 20px; }
+        .menu-link { 
+            font-size: 28px; font-weight: 800; text-decoration: none; color: #121212; 
+            letter-spacing: -1px; transition: 0.4s; opacity: 0; transform: translateX(30px);
+        }
+        .menu-link:hover { color: var(--brand-orange); transform: translateX(10px); }
+        .menu-footer { margin-top: auto; padding-top: 40px; border-top: 1px solid #f0f0f0; }
+
+        /* --- HERO SECTION --- */
+        .hero { padding: 160px 20px 80px; text-align: center; }
+        .hero-badge {
+            display: inline-flex; background: #fff; padding: 8px 16px; border-radius: 100px;
+            border: 1px solid #f0f0f0; color: var(--brand-orange); font-size: 11px;
+            font-weight: 800; letter-spacing: 1px; margin-bottom: 24px;
+        }
+        .hero h1 { font-size: clamp(40px, 6vw, 76px); font-weight: 800; line-height: 1.1; letter-spacing: -3px; margin-bottom: 20px; }
+        .hero p { font-size: 18px; color: var(--text-muted); max-width: 600px; margin: 0 auto; }
+
+        /* --- SECTION HEADERS --- */
+        .section-header { text-align: center; margin-bottom: 60px; padding: 0 20px; }
+        .section-subtitle {
+            color: var(--brand-orange); font-size: 11px; font-weight: 800; letter-spacing: 2px; display: block; margin-bottom: 14px; text-transform: uppercase;
+        }
+        .section-title { font-size: 48px; font-weight: 800; margin-bottom: 20px; letter-spacing: -1.5px; color: #101828; }
+        .section-desc { font-size: 17px; color: #667085; max-width: 680px; margin: 0 auto; line-height: 1.6; }
+
+        /* --- HOW IT WORKS SECTION --- */
+        .how-it-works-section { padding: 120px 0 60px; background: #fff; }
+        .steps-grid {
+            max-width: 1240px; margin: 0 auto; padding: 0 20px;
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+        }
+        .step-card {
+            background: #F9FAFB; border: 1px solid #F2F4F7; border-radius: 24px;
+            padding: 56px 48px; position: relative; cursor: pointer;
+        }
+        .step-num { position: absolute; top: 40px; right: 40px; color: var(--brand-orange); font-size: 11px; font-weight: 800; }
+        .hiw-icon-container {
+            width: 80px; height: 80px; background: #fff; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; margin-bottom: 48px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        }
+        .icon-svg { width: 32px; height: 32px; fill: var(--brand-orange); }
+        .step-card h3 { font-size: 24px; font-weight: 700; margin-bottom: 16px; color: #101828; }
+        .step-card p { color: #667085; line-height: 1.6; font-size: 16px; }
+
+        /* --- SUBJECTS SECTION --- */
+        .subjects-section { padding: 80px 0 80px; }
+        .subject-container {
+            max-width: 1200px; margin: 0 auto; display: grid;
+            grid-template-columns: repeat(3, 1fr); gap: 32px; padding: 0 20px;
+        }
+        .subject-card { background: #fff; border: 1px solid var(--border-light); border-radius: 32px; cursor: pointer; overflow: hidden; }
+        .subject-thumb { width: 100%; height: 240px; background-size: cover; background-position: center; }
+        .subject-info { padding: 32px; }
+        .subject-card h3 { font-size: 24px; font-weight: 700; margin-bottom: 12px; }
+        .subject-card p { color: var(--text-muted); font-size: 15px; }
+        .subject-card .tag { font-size: 11px; font-weight: 800; color: var(--brand-orange); text-transform: uppercase; margin-bottom: 12px; display: block; }
+
+        /* --- TESTIMONIALS SECTION --- */
+        .testimonials-section { padding: 100px 0; background: #fff; }
+        .testimonial-grid {
+            max-width: 1200px; margin: 0 auto; display: grid;
+            grid-template-columns: repeat(3, 1fr); gap: 24px; padding: 0 20px;
+        }
+        .testimonial-card {
+            background: #fff; border: 1px solid var(--border-light); padding: 40px;
+            border-radius: 24px; transition: 0.3s;
+        }
+        .testimonial-card:hover { transform: translateY(-5px); box-shadow: var(--premium-shadow); }
+        .stars { color: #FFB800; margin-bottom: 15px; font-size: 18px; }
+        .testimonial-text { color: #475467; line-height: 1.6; font-size: 16px; margin-bottom: 25px; }
+        .user-profile { display: flex; align-items: center; gap: 15px; }
+        .user-img { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; }
+        .user-name { font-weight: 700; color: #101828; }
+        .user-role { font-size: 13px; color: #667085; }
+
+        /* --- FOOTER & BRANDS --- */
+        footer { background: #101828; color: #fff; padding: 80px 0 40px; }
+        .brands-container { 
+            max-width: 1200px; margin: 0 auto 80px; padding: 0 20px;
+            display: flex; flex-wrap: wrap; justify-content: center; gap: 40px; opacity: 0.6;
+        }
+        .brand-logo { 
+            font-weight: 800; font-size: 18px; color: #fff; letter-spacing: -1px; 
+            filter: grayscale(1); transition: 0.3s; cursor: pointer;
+        }
+        .brand-logo:hover { filter: grayscale(0); opacity: 1; color: var(--brand-orange); }
+        
+        .footer-main {
+            max-width: 1200px; margin: 0 auto; padding: 0 20px;
+            display: flex; justify-content: space-between; align-items: flex-start;
+            border-top: 1px solid rgba(255,255,255,0.1); padding-top: 60px;
+        }
+        .footer-brand h2 { font-size: 24px; margin-bottom: 15px; }
+        .footer-brand p { color: #98A2B3; max-width: 300px; font-size: 14px; line-height: 1.6; }
+        
+        .social-links { display: flex; gap: 15px; margin-top: 25px; }
+        .social-btn {
+            width: 40px; height: 40px; border-radius: 10px; background: rgba(255,255,255,0.05);
+            display: flex; align-items: center; justify-content: center; transition: 0.3s;
+        }
+        .social-btn:hover { background: var(--brand-orange); transform: translateY(-3px); }
+        .social-btn svg { width: 18px; height: 18px; fill: #fff; }
+
+        .footer-copy {
+            text-align: center; margin-top: 60px; padding-top: 30px;
+            border-top: 1px solid rgba(255,255,255,0.05); color: #667085; font-size: 14px;
+        }
+
+        /* --- CHAPTER VIEW --- */
+        #chapter-view {
+            display: none; max-width: 1100px; margin: 120px auto; padding: 40px;
+            background: #fafafa; border-radius: 32px; border: 1px solid #eee;
+            opacity: 0; transform: translateY(50px);
+        }
+        .video-player-container {
+            width: 100%; background: #000; border-radius: 24px; overflow: hidden;
+            margin-bottom: 40px; display: none; box-shadow: 0 40px 100px rgba(0,0,0,0.2);
+        }
+        .video-player-container iframe { width: 100%; aspect-ratio: 16/9; display: block; border: none; }
+        .chapter-item {
+            display: flex; justify-content: space-between; align-items: center;
+            background: #fff; padding: 24px 32px; border-radius: 20px; margin-bottom: 16px;
+            cursor: pointer; border: 1px solid transparent;
+        }
+        .chapter-item.active { border: 1px solid var(--brand-orange); background: #fff9f7; }
+
+        @media (max-width: 768px) {
+            .steps-grid, .subject-container, .testimonial-grid { grid-template-columns: 1fr; }
+            .section-title { font-size: 36px; }
+            #side-menu { width: 100%; top: 0; right: -100%; height: 100vh; border-radius: 0; }
+            .footer-main { flex-direction: column; gap: 40px; text-align: center; align-items: center; }
+        }
+        /* Taaki animation se pehle content invisible na rahe agar script late chale */
+.reveal-content, .step-card, .subject-card, .testimonial-card {
+    opacity: 1 !important; 
+}
+/* --- CONTACT SECTION --- */
+.contact-section {
+    padding: 120px 0;
+    background: #fff;
+    position: relative;
+}
+
+.contact-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 80px;
+    padding: 0 20px;
+}
+
+.contact-info h2 {
+    font-size: 48px;
+    font-weight: 800;
+    margin-bottom: 24px;
+    letter-spacing: -2px;
+}
+
+.contact-method {
+    margin-top: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.method-item {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.method-icon {
+    width: 54px;
+    height: 54px;
+    background: var(--brand-orange-soft);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.method-icon svg {
+    width: 24px;
+    height: 24px;
+    stroke: var(--brand-orange);
+}
+
+.method-text h4 { font-size: 14px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+.method-text p { font-size: 18px; font-weight: 600; color: #101828; }
+
+/* Contact Form */
+.contact-form-card {
+    background: #ffffff;
+    padding: 50px;
+    border-radius: 32px;
+    border: 1px solid var(--border-light);
+    box-shadow: var(--premium-shadow);
+}
+
+.form-group { margin-bottom: 20px; }
+.form-group label { display: block; font-size: 14px; font-weight: 700; margin-bottom: 8px; color: #344054; }
+.form-input {
+    width: 100%;
+    padding: 14px 18px;
+    border-radius: 12px;
+    border: 1px solid #D0D5DD;
+    font-family: inherit;
+    font-size: 16px;
+    transition: 0.3s;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--brand-orange);
+    box-shadow: 0 0 0 4px rgba(255, 92, 53, 0.1);
+}
+
+.submit-btn {
+    width: 100%;
+    position: relative;
+    background: var(--brand-orange);
+    color: white;
+    padding: 18px;
+    border: none;
+    border-radius: 14px;
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+    overflow: hidden; /* Shine ko andar rakhne ke liye */
+    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    letter-spacing: 0.5px;
+}
+
+/* Button ke andar ki white shine animation */
+.submit-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        120deg,
+        transparent,
+        rgba(255, 255, 255, 0.3),
+        transparent
+    );
+    transition: all 0.6s;
+    z-index: -1;
+}
+
+.submit-btn:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 15px 30px rgba(255, 92, 53, 0.3);
+    background: #ff451a; /* Thoda dark orange on hover */
+}
+
+.submit-btn:hover::before {
+    left: 100%;
+    transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.submit-btn:active {
+    transform: translateY(-1px) scale(0.96); /* Click animation */
+}
+
+/* Button icon animation */
+.btn-icon {
+    transition: transform 0.3s ease;
+}
+
+.submit-btn:hover .btn-icon {
+    transform: translateX(5px) rotate(-10deg);
+}
+
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .contact-container { grid-template-columns: 1fr; gap: 50px; }
+    .contact-form-card { padding: 30px; }
+    .contact-info h2 { font-size: 36px; }
+}
+/* Container for the animated border */
+.btn-wrapper {
+    position: relative;
+    width: 100%;
+    padding: 2px; /* Border ki thickness */
+    border-radius: 16px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f0f0f0; /* Default border color */
+}
+
+/* Rotating Gradient Layer */
+.btn-wrapper::before {
+    content: '';
+    position: absolute;
+    width: 150%;
+    height: 300%;
+    background: conic-gradient(
+        transparent, 
+        transparent, 
+        transparent, 
+        var(--brand-orange)
+    );
+    animation: rotateBorder 4s linear infinite;
+}
+
+/* Gradient Rotation Animation */
+@keyframes rotateBorder {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.submit-btn {
+    width: 100%;
+    background: #fff; /* Button background white rakha hai taaki border chamke */
+    color: var(--text-dark);
+    padding: 16px;
+    border: none;
+    border-radius: 14px;
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+    z-index: 2; /* Border ke upar rakhne ke liye */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+}
+
+/* Hover effect: Button filling with color */
+.submit-btn:hover {
+    background: var(--brand-orange);
+    color: #fff;
+}
+
+/* Wrapper shadow on hover */
+.btn-wrapper:hover {
+    box-shadow: 0 0 25px rgba(255, 92, 53, 0.4);
+    transition: 0.3s;
+}
+/* Chapter container ko scrollable banane ke liye */
+#chapter-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-height: 500px; /* Ek fixed height dein */
+    overflow-y: auto;  /* Zyada chapters hone par scrollbar aa jayega */
+    padding-right: 10px;
+    margin-top: 20px;
+}
+
+/* Scrollbar ko premium look dene ke liye */
+#chapter-list::-webkit-scrollbar {
+    width: 6px;
+}
+#chapter-list::-webkit-scrollbar-thumb {
+    background: var(--brand-orange);
+    border-radius: 10px;
+}
+#chapter-list::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+
+
+
+    </style>
+</head>
+<body>
+
+    <div id="search-bar-container">
+        <input type="text" class="search-mini-input" id="miniSearch" placeholder="What do you want to learn?" onkeyup="handleSearchKey(event)">
+        <button class="search-mini-btn" onclick="executeSearch()">Search</button>
+        <div style="margin-left: 10px; cursor: pointer; font-size: 18px;" onclick="toggleSearch(false)">✕</div>
+    </div>
+
+    <div id="menu-overlay" onclick="toggleMenu(false)"></div>
+    <div id="side-menu">
+        <div class="menu-header">
+            <div class="logo">Caleo<span>X</span></div>
+            <div class="menu-close-btn" onclick="toggleMenu(false)">✕</div>
+        </div>
+        <div class="menu-links">
+            <a href="#" class="menu-link" onclick="toggleMenu(false)">Home</a>
+            <a href="#hiw-sec" class="menu-link" onclick="toggleMenu(false)">Process</a>
+            <a href="#subject-grid-sec" class="menu-link" onclick="toggleMenu(false)">Courses</a>
+            <a href="#" class="menu-link" onclick="toggleMenu(false)">Mentors</a>
+<a href="#contact-sec" class="menu-link" onclick="toggleMenu(false)">Contact</a>
+
+        </div>
+        <div class="menu-footer">
+            <p style="color: #888; font-size: 13px; font-weight: 600;">PREMIUM ACCESS</p>
+            <button style="width: 100%; margin-top: 15px; background: #000; color: #fff; border: none; padding: 18px; border-radius: 14px; font-weight: 700; cursor: pointer;">Go to Dashboard</button>
+        </div>
+    </div>
+
+    <div class="page-grid">
+        <div class="grid-col"></div><div class="grid-col"></div><div class="grid-col"></div><div class="grid-col"></div>
+        <div class="grid-col"></div><div class="grid-col"></div><div class="grid-col"></div><div class="grid-col"></div>
+        <div class="grid-col"></div><div class="grid-col"></div><div class="grid-col"></div><div class="grid-col"></div>
+    </div>
+
+    <div class="glow-system"><div class="glow-block g1"></div></div>
+
+    <nav>
+        <div class="nav-container">
+            <div class="logo" onclick="location.reload()">Caleo<span class="shimmer-text">X.</span></div>
+            <div class="nav-actions">
+                <button class="icon-btn" onclick="toggleSearch(true)">
+                    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                </button>
+                <button class="icon-btn" onclick="toggleMenu(true)">
+                    <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main id="main-content">
+        <section class="hero" id="hero-sec">
+            <div class="hero-badge">PREMIUM E-LEARNING EXPERIENCE</div>
+            <h1>Learn from Caleo<span class="shimmer-text">X.</span><br>And Master Your 🧠Mind.</h1>
+            <p>Access high-quality video courses and structured chapters designed for deep understanding.</p>
+        </section>
+
+        <section class="how-it-works-section" id="hiw-sec">
+            <div class="section-header reveal-content">
+                <span class="section-subtitle">★★★★★</span>
+                <h2 class="section-title">Modern <span class="shimmer-text">Class 10th</span> 2026</h2>
+                <p class="section-desc">See everything that matters at a glance. Track your progress, revenue, and behavior in real time.</p>
+            </div>
+            <div class="steps-grid">
+                <div class="step-card" onclick="openChapters('Getting Started', 'Learn how to register and set up your profile.')">
+                    <span class="step-num">★★★★★★</span>
+                    <div class="hiw-icon-container">
+                        <svg class="icon-svg" viewBox="0 0 24 24"><path d="M21,16.5C21,16.88 20.79,17.21 20.47,17.38L12.57,21.82C12.41,21.94 12.21,22 12,22C11.79,22 11.59,21.94 11.43,21.82L3.53,17.38C3.21,17.21 3,16.88 3,16.5V7.5C3,7.12 3.21,6.79 3.53,6.62L11.43,2.18C11.59,2.06 11.79,2 12,2C12.21,2 12.41,2.06 12.57,2.18L20.47,6.62C20.79,6.79 21,7.12 21,7.5V16.5Z"/></svg>
+                    </div>
+                    <h3>Physics</h3>
+                    <p>Register and customize your experience to match your goals.</p>
+                </div>
+                <div class="step-card">
+                    <span class="step-num">★★★★★</span>
+                    <div class="hiw-icon-container">
+                        <svg class="icon-svg" viewBox="0 0 24 24"><path d="M12,17A2,2 0 0,0 14,15C14,13.89 13.1,13 12,13A2,2 0 0,0 10,15C10,16.11 10.9,17 12,17M18,8A2,2 0 0,1 20,10V20A2,2 0 0,1 18,22H6A2,2 0 0,1 4,20V10C4,8.89 4.9,8 6,8H7V6A5,5 0 0,1 12,1A5,5 0 0,1 17,6V8H18M12,3A3,3 0 0,0 9,6V8H15V6A3,3 0 0,0 12,3Z"/></svg>
+                    </div>
+                    <h3>Chemistry</h3>
+                    <p>Track every order's status in real-time and keep in loop.</p>
+                </div>
+                <div class="step-card">
+                    <span class="step-num">★★★★★★</span>
+                    <div class="hiw-icon-container">
+                        <svg class="icon-svg" viewBox="0 0 24 24"><path d="M12,17A2,2 0 0,0 14,15C14,13.89 13.1,13 12,13A2,2 0 0,0 10,15C10,16.11 10.9,17 12,17M18,8A2,2 0 0,1 20,10V20A2,2 0 0,1 18,22H6A2,2 0 0,1 4,20V10C4,8.89 4.9,8 6,8H7V6A5,5 0 0,1 12,1A5,5 0 0,1 17,6V8H18M12,3A3,3 0 0,0 9,6V8H15V6A3,3 0 0,0 12,3Z"/></svg>
+                    </div>
+                    <h3>Mathematics</h3>
+                    <p>Boost your knowledge faster with smart automation and insights.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="subjects-section" id="subject-grid-sec">
+            <div class="section-header reveal-content">
+                <span class="section-subtitle">EXPLORE TOPICS</span>
+                <h2 class="section-title">Advance <span class="shimmer-text">Level</span></h2>
+                <p class="section-desc">Deep dive into complex topics with our structured advanced curriculum.</p>
+            </div>
+            <div class="subject-container">
+                <div class="subject-card" onclick="openChapters('Physics', 'Explore the universe.')">
+                    <div class="subject-thumb" style="background-image: url('https://praxilabs.com/en/blog/wp-content/uploads/2025/07/Subatomic-Particles-1.webp');"></div>
+                    <div class="subject-info">
+                        <span class="tag">Advanced</span>
+                        <h3> Quantum Physics</h3>
+                        <p>16 Chapters • 16 HD Videos</p>
+                    </div>
+                </div>
+                <div class="subject-card" onclick="openChapters('Mathematics', 'Simplified Calculus.')">
+                    <div class="subject-thumb" style="background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRSwtU3Ic6ThjYaGLeiRj4BePjpDXMxwANycP7SZG_Bu2MEqiGWoy9WZT4&s=10');"></div>
+                    <div class="subject-info">
+                        <span class="tag">Academic</span>
+                        <h3>Mathematics</h3>
+                        <p>15 Chapters • 40 Videos</p>
+                    </div>
+                </div>
+                <div class="subject-card" onclick="openChapters('Chemistry', 'Organic reactions.')">
+                    <div class="subject-thumb" style="background-image: url('https://chemistry.com.pk/wp-content/uploads/2021/09/Chemistry-for-Cambridge-International-As-A-Level-Coursebook-3e-By-Lawrie-Ryan-Roger-Norris.jpg');"></div>
+                    <div class="subject-info">
+                        <span class="tag">Science</span>
+                        <h3>Chemistry</h3>
+                        <p>10 Chapters • 18 Videos</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="testimonials-section" id="test-sec">
+            <div class="section-header reveal-content">
+                <span class="section-subtitle">TESTIMONIALS</span>
+                <h2 class="section-title">Loved by <span class="shimmer-text">Students</span></h2>
+                <p class="section-desc">Hear from our students who have transformed their careers through Caleo.</p>
+            </div>
+            <div class="testimonial-grid">
+                <div class="testimonial-card">
+                    <div class="stars">★★★★★</div>
+                    <p class="testimonial-text">"The depth of physics concepts covered here is unmatched. The video quality and explanation style are truly premium."</p>
+                    <div class="user-profile">
+                        <img src="https://i.pravatar.cc/150?u=1" class="user-img" alt="User">
+                        <div><div class="user-name">Arjun Sharma</div><div class="user-role">JEE Aspirant</div></div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="stars">★★★★★</div>
+                    <p class="testimonial-text">"I never thought Calculus could be this easy. The step-by-step structure helped me crack my advanced exams."</p>
+                    <div class="user-profile">
+                        <img src="https://i.pravatar.cc/150?u=2" class="user-img" alt="User">
+                        <div><div class="user-name">Sneha Reddy</div><div class="user-role">IIT Student</div></div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="stars">★★★★★</div>
+                    <p class="testimonial-text">"Best platform for organic chemistry. The visual aids used in the videos make complex reactions very easy to remember."</p>
+                    <div class="user-profile">
+                        <img src="https://i.pravatar.cc/150?u=3" class="user-img" alt="User">
+                        <div><div class="user-name">Rahul Verma</div><div class="user-role">NEET Aspirant</div></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="chapter-view">
+            <button onclick="closeChapters()" style="margin-bottom: 24px; color: var(--brand-orange); font-weight: 800; cursor: pointer; border:none; background:none; font-size: 14px;">← BACK TO HOME</button>
+            <div class="video-player-container" id="videoContainer"><div id="playerSlot"></div></div>
+            <h2 id="selected-subject" style="font-size: 32px; margin-bottom: 12px; color: #101828;"></h2>
+            <p id="selected-desc" style="color: var(--text-muted); margin-bottom: 40px;"></p>
+            <div id="chapter-list"></div>
+        </section>
+        <section class="contact-section" id="contact-sec">
+    <div class="contact-container">
+        <div class="contact-info reveal-content">
+            <span class="section-subtitle">GET IN TOUCH</span>
+            <h2>Let’s build your <span class="shimmer-text">success</span> together.</h2>
+            <p>Hamari team hamesha aapki madad ke liye taiyar hai. Koi bhi sawal ho, beshijhak puchein.</p>
+            
+            <div class="contact-method">
+                <div class="method-item">
+                    <div class="method-icon"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg></div>
+                    <div class="method-text"><h4>Email Us</h4><p>ashishchaudhary33663366@gmail.com</p></div>
+                </div>
+                <div class="method-item">
+                    <div class="method-icon"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg></div>
+                    <div class="method-text"><h4>Our Office</h4><p>Premium Heights, New Delhi, IN</p></div>
+                </div>
+            </div>
+        </div>
+
+<div class="contact-form-card reveal-content">
+    <form action="https://formspree.io/f/mvzbbejl" method="POST" id="premiumForm">
+        
+        <div class="form-group">
+            <label>Full Name</label>
+            <input type="text" name="name" class="form-input" placeholder="John Doe" required>
+        </div>
+
+        <div class="form-group">
+            <label>Email Address</label>
+            <input type="email" name="_replyto" class="form-input" placeholder="john@example.com" required>
+        </div>
+
+        <div class="form-group">
+            <label>Subject (Optional)</label>
+            <input type="text" name="_subject" class="form-input" placeholder="Course Inquiry">
+        </div>
+
+        <div class="form-group">
+            <label>Message</label>
+            <textarea name="message" class="form-input" rows="4" placeholder="How can we help you?" required></textarea>
+        </div>
+
+        <input type="text" name="_gotcha" style="display:none">
+
+       <div class="form-group" style="margin-top: 30px;">
+    <div class="btn-wrapper">
+        <button type="submit" class="submit-btn" id="submitBtn">
+            <span>Send Message</span>
+            <svg class="btn-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="22" y1="2" x2="11" y2="13"></line>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
+        </button>
+    </div>
+</div>
+
+    </form>
+</div>
+
+    </div>
+</section>
+
+    </main>
+
+    <footer>
+        <div class="brands-container">
+            <div class="brand-logo" >  C.V. Raman</div>
+            <div class="brand-logo">Satyendra Nath Bose</div>
+            <div class="brand-logo">Homi J. Bhabha</div>
+            <div class="brand-logo">Jagdish Chandra Bose</div>
+            <div class="brand-logo">Werner Heisenberg</div>
+            <div class="brand-logo"> E.C.G. Sudarshan</div>
+            <div class="brand-logo">⚡Nikola Tesla</div>
+            <div class="brand-logo">Albert Einstein</div>
+            <div class="brand-logo">Max Planck</div>
+            <div class="brand-logo">Niels Bohr</div>
+            <div class="brand-logo">Erwin Schrödinger</div>
+        </div>
+
+        <div class="footer-main">
+            <div class="footer-brand">
+                <div class="logo">Caleo<span style="color:var(--brand-orange)">X.</span></div>
+                <p>Empowering students globally with premium structured learning and expert mentorship.</p>
+                <div class="social-links">
+                    <a href="https://www.instagram.com/ashish.chaudhary__?igsh=bTh4cHZ2OWFwbW51" target="_blank" class="social-btn">
+                        <svg viewBox="0 0 24 24"><path d="M7.8,2H16.2C19.4,2 22,4.6 22,7.8V16.2A5.8,5.8 0 0,1 16.2,22H7.8C4.6,22 2,19.4 2,16.2V7.8A5.8,5.8 0 0,1 7.8,2M12,7A5,5 0 0,0 7,12A5,5 0 0,0 12,17A5,5 0 0,0 17,12A5,5 0 0,0 12,7M12,9A3,3 0 0,1 15,12A3,3 0 0,1 12,15A3,3 0 0,1 9,12A3,3 0 0,1 12,9M18,6A1,1 0 0,0 17,7A1,1 0 0,0 18,8A1,1 0 0,0 19,7A1,1 0 0,0 18,6Z"/></svg>
+                    </a>
+                    <a href="https://x.com/AshishXCaleo" target="_blank" class="social-btn">
+                        <svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                    </a>
+                    <a href="https://www.facebook.com/share/18TQGhn5Qm/" target="_blank" class="social-btn">
+                        <svg viewBox="0 0 24 24"><path d="M12 2.04C6.5 2.04 2 6.53 2 12.06C2 17.06 5.66 21.21 10.44 21.96V14.96H7.9V12.06H10.44V9.85C10.44 7.34 11.93 5.96 14.22 5.96C15.31 5.96 16.45 6.15 16.45 6.15V8.62H15.19C13.95 8.62 13.56 9.39 13.56 10.18V12.06H16.34L15.89 14.96H13.56V21.96A10 10 0 0 0 22 12.06C22 6.53 17.5 2.04 12 2.04Z"/></svg>
+                    </a>
+                    <a href="https://youtube.com/@ashishchaudhary3366?si=C6NbUr_GZHbIZv0k" target="_blank" class="social-btn">
+                        <svg viewBox="0 0 24 24"><path d="M10,15L15.19,12L10,9V15M21.56,7.17C21.69,7.64 21.78,8.27 21.84,9.07C21.91,9.87 21.94,10.56 21.94,11.16L22,12C22,14.19 21.84,15.8 21.56,16.83C21.31,17.73 20.73,18.31 19.83,18.56C18.8,18.84 16.19,19 12,19C7.81,19 5.2,18.84 4.17,18.56C3.27,18.31 2.69,17.73 2.44,16.83C2.16,15.8 2,14.19 2,12L2.06,11.16C2.06,10.56 2.09,9.87 2.16,9.07C2.22,8.27 2.31,7.64 2.44,7.17C2.69,6.27 3.27,5.69 4.17,5.44C5.2,5.16 7.81,5 12,5C16.19,5 18.8,5.16 19.83,5.44C20.73,5.69 21.31,6.27 21.56,7.17Z"/></svg>
+                    </a>
+                </div>
+            </div>
+            <div style="display:flex; gap:60px;">
+                <div style="display:flex; flex-direction:column; gap:12px;">
+                    <strong style="margin-bottom:10px;">Company</strong>
+                    <a href="#" style="color:#98A2B3; text-decoration:none; font-size:14px;">About</a>
+                    <a href="#" style="color:#98A2B3; text-decoration:none; font-size:14px;">Careers</a>
+                    <a href="#" style="color:#98A2B3; text-decoration:none; font-size:14px;">Mentors</a>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:12px;">
+                    <strong style="margin-bottom:10px;">Support</strong>
+                    <a href="#" style="color:#98A2B3; text-decoration:none; font-size:14px;">Help Center</a>
+                    <a href="#" style="color:#98A2B3; text-decoration:none; font-size:14px;">Privacy</a>
+                    <a href="#" style="color:#98A2B3; text-decoration:none; font-size:14px;">Terms</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-copy">© 2026 CaleoX. All rights reserved.</div>
+    </footer>
+
+    <script>
+        gsap.registerPlugin(ScrollTrigger);
+
+        // --- BACK BUTTON LOGIC ---
+        window.onpopstate = function() {
+            if (document.getElementById('side-menu').style.right === '15px' || document.getElementById('side-menu').style.right === '0px') {
+                toggleMenu(false);
+            } else if (document.getElementById('search-bar-container').style.top === '20px') {
+                toggleSearch(false);
+            } else if (document.getElementById('chapter-view').style.display === 'block') {
+                closeChapters();
+            }
+        };
+
+        function toggleSearch(open) {
+            const bar = document.getElementById('search-bar-container');
+            if(open) {
+                history.pushState({page: 'search'}, '');
+                gsap.to(bar, { top: 20, duration: 0.6, ease: "power4.out" });
+                document.getElementById('miniSearch').focus();
+            } else {
+                gsap.to(bar, { top: -100, duration: 0.4, ease: "power4.in" });
+            }
+        }
+
+        function handleSearchKey(e) {
+            if(e.key === 'Enter') executeSearch();
+            if(e.key === 'Escape') toggleSearch(false);
+        }
+
+        function executeSearch() {
+            const query = document.getElementById('miniSearch').value.toLowerCase();
+            if(!query) return;
+            const elements = document.querySelectorAll('.step-card, .subject-card, h3, .section-title');
+            let found = false;
+            elements.forEach(el => {
+                if(el.innerText.toLowerCase().includes(query)) {
+                    toggleSearch(false);
+                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    gsap.from(el, { scale: 1.05, duration: 0.4, repeat: 1, yoyo: true });
+                    found = true;
+                }
+            });
+            if(!found) alert('No results for: ' + query);
+        }
+
+        function toggleMenu(open) {
+    const overlay = document.getElementById('menu-overlay');
+    const sideMenu = document.getElementById('side-menu');
+    
+    if(open) {
+        history.pushState({page: 'menu'}, '');
+        overlay.style.display = 'block';
+        
+        // Fast and smooth opening
+        gsap.to(overlay, { opacity: 1, duration: 0.3 });
+        gsap.to(sideMenu, { 
+            right: window.innerWidth <= 768 ? 0 : 15, // Mobile par poora, desktop par side mein
+            duration: 0.5, 
+            ease: "power2.out" 
+        });
+        
+        // Links animation ko thoda kam delay dein taaki lag na lage
+        gsap.to(".menu-link", { 
+            opacity: 1, 
+            x: 0, 
+            stagger: 0.05, 
+            duration: 0.4, 
+            ease: "power2.out",
+            delay: 0.2 
+        });
+    } else {
+        // Closing animation ko fast rakhein
+        gsap.to(".menu-link", { opacity: 0, x: 20, duration: 0.2 });
+        gsap.to(sideMenu, { 
+            right: -450, 
+            duration: 0.4, 
+            ease: "power2.in" 
+        });
+        gsap.to(overlay, { 
+            opacity: 0, 
+            duration: 0.3, 
+            onComplete: () => overlay.style.display = 'none' 
+        });
+    }
+}
+
+        // --- ANIMATIONS ---
+        gsap.from(".hero > *", { y: 50, opacity: 0, duration: 1, stagger: 0.2, ease: "power4.out" });
+
+        const sections = document.querySelectorAll('.how-it-works-section, .subjects-section, .testimonials-section');
+        sections.forEach(section => {
+            gsap.from(section.querySelector('.reveal-content'), {
+                scrollTrigger: { trigger: section, start: "top 85%" },
+                y: 50, opacity: 0, duration: 1, ease: "power3.out"
+            });
+            gsap.from(section.querySelectorAll('.step-card, .subject-card, .testimonial-card'), {
+                scrollTrigger: { trigger: section, start: "top 75%" },
+                y: 60, opacity: 0, duration: 1.2, stagger: 0.15, ease: "power2.out"
+            });
+        });
+
+const courseLibrary = {
+    "Physics": [
+        { id: "mg735FhZm2k", title: " The Wave Function (Schrödinger Equation, Probability)", duration: "15:20" },
+        { id: "", title: " Time-Independent Schrödinger Equation (Wells, Oscillators)", duration: "22:45" },
+        { id: "", title: "Formalism (Hilbert Space, Operators)", duration: "18:10" },
+        { id: "", title: "Quantum Mechanics in Three Dimensions (Hydrogen, Angular Momentum)", duration: "18:10" },
+        { id: "", title: "Identical Particles (Atoms, Solids) ", duration: "18:10" },
+        { id: "", title: "Time-Independent Perturbation Theory", duration: "18:10" },
+        { id: "", title: " The Variational Principle", duration: "18:10" },
+        { id: "", title: "The WKB Approximation", duration: "18:10" },
+        { id: "", title: "Time-Dependent Perturbation Theory", duration: "18:10" },
+        { id: "", title: "Scattering", duration: "18:10" },
+        { id: "", title: "Fundamental Concepts (Kets, Bras, Operators)", duration: "18:0" },
+        { id: "", title: "Quantum Dynamics (Time Evolution, Pictures)", duration: "18:10" },
+        { id: "", title: "Angular Momentum & Symmetry", duration: "18:10" },
+        { id: "", title: "Approximation Methods", duration: "18:10" },
+        { id: "", title: "Scattering Theory & Identical Particles", duration: "18:10" },
+        { id: "", title: "Relativistic Quantum Mechanics", duration: "18:10" },
+
+        // ... Yahan 20 chapters tak list badhayein
+    ],
+    "Mathematics": [
+        { id: "VIDEO_ID_M1", title: "01. Sets and Relations", duration: "20:00" },
+        { id: "VIDEO_ID_M2", title: "02. Trigonometric Functions", duration: "25:30" },
+        { id: "VIDEO_ID_M3", title: "03. Linear Inequalities", duration: "15:45" },
+    ],
+    "Chemistry": [
+        { id: "VIDEO_ID_C1", title: "01. Some Basic Concepts", duration: "12:15" },
+        { id: "VIDEO_ID_C2", title: "02. Structure of Atom", duration: "30:20" },
+    ]
+};
+
+
+        function openChapters(subjectName, desc) {
+    history.pushState({page: 'chapters'}, '');
+    const mainElements = ['hero-sec', 'hiw-sec', 'subject-grid-sec', 'test-sec', 'contact-sec']; 
+    
+    gsap.to(mainElements.map(id => `#${id}`), {
+        opacity: 0, y: -20, duration: 0.4,
+        onComplete: () => {
+            mainElements.forEach(id => {
+                const el = document.getElementById(id);
+                if(el) el.style.display = 'none';
+            });
+            document.querySelector('footer').style.display = 'none';
+            
+            const chapView = document.getElementById('chapter-view');
+            chapView.style.display = 'block';
+            document.getElementById('selected-subject').innerText = subjectName;
+            document.getElementById('selected-desc').innerText = desc;
+            
+            // Yahan dynamic data load ho raha hai
+            const list = document.getElementById('chapter-list');
+            list.innerHTML = '';
+            
+            const chapters = courseLibrary[subjectName] || [];
+            
+            if(chapters.length === 0) {
+                list.innerHTML = "<p style='padding:20px;'>Coming Soon...</p>";
+            } else {
+                chapters.forEach((ch, index) => {
+                    list.innerHTML += `
+                        <div class="chapter-item" id="chap-${index}" onclick="playVideoInline('${ch.id}', ${index})">
+                            <div style="display:flex; align-items:center; gap:15px;">
+                                <div style="width:30px; height:30px; background:var(--brand-orange-soft); color:var(--brand-orange); border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:12px;">${index + 1}</div>
+                                <div>
+                                    <strong style="font-size:16px;">${ch.title}</strong><br>
+                                    <small style="color:#888;">Duration: ${ch.duration}</small>
+                                </div>
+                            </div>
+                            <span style="color:var(--brand-orange); font-weight:800; font-size:12px;">WATCH</span>
+                        </div>`;
+                });
+            }
+            
+            gsap.to(chapView, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" });
+        }
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+
+        function playVideoInline(id, index) {
+            const container = document.getElementById('videoContainer');
+            container.style.display = 'block';
+            gsap.from(container, { scaleY: 0, opacity: 0, duration: 0.5, transformOrigin: "top" });
+            document.getElementById('playerSlot').innerHTML = `<iframe src="https://www.youtube.com/embed/${id}?autoplay=1&controls=1&rel=0&modestbranding=1" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe>`;
+            document.querySelectorAll('.chapter-item').forEach(el => el.classList.remove('active'));
+            document.getElementById('chap-' + index).classList.add('active');
+            container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function closeChapters() {
+    document.getElementById('playerSlot').innerHTML = '';
+    document.getElementById('videoContainer').style.display = 'none';
+    gsap.to("#chapter-view", {
+        opacity: 0, y: 50, duration: 0.5,
+        onComplete: () => {
+            document.getElementById('chapter-view').style.display = 'none';
+            // Yahan bhi 'contact-sec' add karein
+            const mainElements = ['hero-sec', 'hiw-sec', 'subject-grid-sec', 'test-sec', 'contact-sec'];
+            mainElements.forEach(id => {
+                const el = document.getElementById(id);
+                if(el) el.style.display = 'block';
+            });
+            document.querySelector('footer').style.display = 'block';
+            gsap.to(mainElements.map(id => `#${id}`), { opacity: 1, y: 0, duration: 0.5 });
+        }
+    });
+}
+
+        gsap.from(".contact-form-card", {
+    scrollTrigger: {
+        trigger: ".contact-section",
+        start: "top 70%",
+    },
+    x: 50,
+    opacity: 0,
+    duration: 1,
+    ease: "power3.out"
+});
+const btn = document.getElementById('submitBtn');
+
+btn.addEventListener('mouseenter', () => {
+    gsap.to(btn, { 
+        duration: 0.3, 
+        y: -4, 
+        boxShadow: "0 20px 40px rgba(255, 92, 53, 0.4)",
+        ease: "power2.out" 
+    });
+});
+
+btn.addEventListener('mouseleave', () => {
+    gsap.to(btn, { 
+        duration: 0.3, 
+        y: 0, 
+        boxShadow: "0 10px 20px rgba(255, 92, 53, 0.2)",
+        ease: "power2.in" 
+    });
+});
+
+// Click hone par premium bounce
+btn.addEventListener('mousedown', () => {
+    gsap.to(btn, { scale: 0.95, duration: 0.1 });
+});
+
+btn.addEventListener('mouseup', () => {
+    gsap.to(btn, { 
+        scale: 1.02, 
+        duration: 0.5, 
+        ease: "elastic.out(1, 0.3)" 
+    });
+});
+const wrapper = document.querySelector('.btn-wrapper');
+
+wrapper.addEventListener('mouseenter', () => {
+    // Speed up rotation on hover
+    gsap.to(wrapper.querySelector('::before'), { 
+        duration: 0.5, 
+        animationDuration: "1.5s" 
+    });
+});
+
+wrapper.addEventListener('mouseleave', () => {
+    gsap.to(wrapper.querySelector('::before'), { 
+        duration: 0.5, 
+        animationDuration: "2s" 
+    });
+});
+
+    </script>
+</body>
+</html>
